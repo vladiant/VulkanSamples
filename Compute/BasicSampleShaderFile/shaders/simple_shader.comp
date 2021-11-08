@@ -1,0 +1,15 @@
+#version 450 core
+
+layout (set = 0, binding = 0) buffer InputBuffer {
+    uint inputData[];
+};
+
+layout (set = 0, binding = 1) buffer OutputBuffer {
+    uint outputData[];
+};
+
+void main()
+{
+    uint gid = gl_GlobalInvocationID.x;
+    outputData[gid] = inputData[gid];
+}
