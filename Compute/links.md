@@ -2,3 +2,4 @@
 * <https://github.com/Glavnokoman/vulkan-compute-example>
 * <https://github.com/JamesPerlman/VkComputeTest/tree/main/VkComputeTest>
 * <https://github.com/theswiftfox/vulkanComputeExample>
+* <https://github.com/ttddee/ShaderDev>
