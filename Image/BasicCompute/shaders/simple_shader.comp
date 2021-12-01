@@ -1,0 +1,36 @@
+#version 450 core
+
+layout (binding = 0) buffer InputBuffer {
+    vec4 inputData[];
+};
+
+layout (binding = 1) buffer OutputBuffer {	
+    vec4 outputData[];
+};
+
+layout(push_constant) uniform ImageData {
+    uint width;
+    uint height;
+} params;
+
+void main()
+{
+    if(gl_GlobalInvocationID.x >= params.width || gl_GlobalInvocationID.y >= params.height)
+      return;
+
+    uint center = gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * params.width;
+    uint left = gl_GlobalInvocationID.x - 1 + gl_GlobalInvocationID.y * params.width;
+    uint right = gl_GlobalInvocationID.x + 1 + gl_GlobalInvocationID.y * params.width;
+    uint center_up = gl_GlobalInvocationID.x + (gl_GlobalInvocationID.y - 1) * params.width;
+    uint left_up = gl_GlobalInvocationID.x - 1 + (gl_GlobalInvocationID.y - 1) * params.width;
+    uint right_up = gl_GlobalInvocationID.x + 1 + (gl_GlobalInvocationID.y - 1) * params.width;
+    uint center_down = gl_GlobalInvocationID.x + (gl_GlobalInvocationID.y + 1) * params.width;
+    uint left_down = gl_GlobalInvocationID.x - 1 + (gl_GlobalInvocationID.y + 1) * params.width;
+    uint right_down = gl_GlobalInvocationID.x + 1 + (gl_GlobalInvocationID.y + 1) * params.width;
+
+    outputData[center] = (
+        inputData[left_up] + inputData[center_up] + inputData[right_up] +
+        inputData[left] + inputData[center] + inputData[right] +
+        inputData[left_down] + inputData[center_down] + inputData[right_down]
+    )/9.0;
+}
