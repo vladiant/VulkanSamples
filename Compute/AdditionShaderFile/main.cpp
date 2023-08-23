@@ -1,15 +1,15 @@
 // https://stackoverflow.com/questions/67831583/vanilla-vulkan-compute-shader-not-writing-to-output-buffer
 // export VK_INSTANCE_LAYERS=VK_LAYER_KHRONOS_validation
 
-#include <vulkan/vulkan.h>
+#include <cassert>
+#include <fstream>
 #include <iostream>
 #include <vector>
-#include <assert.h>
-#include <fstream>
+#include <vulkan/vulkan.h>
 
 // Some helper functions
-typedef uint32_t            u32;
-typedef uint64_t            u64;
+using u32 = uint32_t;
+using u64 = uint64_t;
 
 // Vulkan two steps enumeration function
 template<typename F, typename V, typename T>
@@ -41,9 +41,9 @@ struct vec4
 
 struct PhysicalDeviceProps
 {
-    VkPhysicalDeviceProperties              m_Properties;
-    VkPhysicalDeviceFeatures                m_Features;
-    VkPhysicalDeviceMemoryProperties        m_MemoryProperties;
+    VkPhysicalDeviceProperties              m_Properties{};
+    VkPhysicalDeviceFeatures                m_Features{};
+    VkPhysicalDeviceMemoryProperties        m_MemoryProperties{};
     std::vector<VkQueueFamilyProperties>    m_QueueFamilyProperties;
     std::vector<VkLayerProperties>          m_LayerProperties;
     std::vector<VkExtensionProperties>      m_ExtensionProperties;
@@ -294,29 +294,29 @@ void SampleCompute()
           VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO, nullptr, 0,
           1, 1, &descriptorPoolSize };
     VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
-    vkCreateDescriptorPool(device, &descriptorPoolCreateInfo, 0, &descriptorPool);
+    vkCreateDescriptorPool(device, &descriptorPoolCreateInfo, nullptr, &descriptorPool);
 
     VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {
-          VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO, 0,
+          VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO, nullptr,
           descriptorPool, 1, &descriptorLayout
     };
-    VkDescriptorSet descriptorSet;
+    VkDescriptorSet descriptorSet = nullptr;
     vkAllocateDescriptorSets(device, &descriptorSetAllocateInfo, &descriptorSet);
 
     VkDescriptorBufferInfo inputBufferDescriptorInfo = { inputBuffer, 0, VK_WHOLE_SIZE };
     VkDescriptorBufferInfo outputBufferDescriptorInfo = { outputBuffer, 0, VK_WHOLE_SIZE };
     VkWriteDescriptorSet writeDescriptorSet[2] = {
           {
-            VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET, 0, descriptorSet,
+            VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET, nullptr, descriptorSet,
             0, 0, 1,
             VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-            0, &inputBufferDescriptorInfo, 0
+            nullptr, &inputBufferDescriptorInfo, nullptr
           },
           {
-            VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET, 0, descriptorSet, 
+            VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET, nullptr, descriptorSet, 
             1, 0, 1,
             VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-            0, &outputBufferDescriptorInfo, 0
+            nullptr, &outputBufferDescriptorInfo, nullptr
           }
     };
 
@@ -363,7 +363,7 @@ void SampleCompute()
     VkCommandBufferUsageFlags flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     VkCommandBufferBeginInfo beginInfo = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, nullptr };
     vkBeginCommandBuffer(cmdBuffer, &beginInfo);
-    vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, layout, 0, 1, &descriptorSet, 0, 0);
+    vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, layout, 0, 1, &descriptorSet, 0, nullptr);
     vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
     vkCmdDispatch(cmdBuffer, 8, 1, 1);
 
@@ -398,7 +398,7 @@ void SampleCompute()
     vkGetDeviceQueue(device, computeQueue, 0, &queue);
 
     VkSubmitInfo submitInfo = { 
-        VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, 0,
+        VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, nullptr,
         1, &cmdBuffer, 0, nullptr
     };
     VkResult result = vkQueueSubmit(queue, 1, &submitInfo, fence);
