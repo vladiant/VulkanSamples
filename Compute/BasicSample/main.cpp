@@ -89,7 +89,7 @@ int main(int argc, const char * const argv[]) {
 
     const vk::DeviceMemory memory = device.allocateMemory(memoryAllocateInfo);
 
-    int32_t *payload = static_cast<int32_t*>(device.mapMemory(memory, 0, memorySize));
+    auto *payload = static_cast<int32_t*>(device.mapMemory(memory, 0, memorySize));
 
     for (uint32_t k = 0; k < memorySize / sizeof(int32_t); k++) {
       payload[k] = rand();
