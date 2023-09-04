@@ -51,9 +51,9 @@ VkResult vkGetBestTransferQueueNPH(VkPhysicalDevice physicalDevice,
                                    uint32_t* queueFamilyIndex) {
   uint32_t queueFamilyPropertiesCount = 0;
   vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice,
-                                           &queueFamilyPropertiesCount, 0);
+                                           &queueFamilyPropertiesCount, nullptr);
 
-  VkQueueFamilyProperties* const queueFamilyProperties =
+  auto* const queueFamilyProperties =
       (VkQueueFamilyProperties*)alloca(sizeof(VkQueueFamilyProperties) *
                                        queueFamilyPropertiesCount);
 
@@ -108,9 +108,9 @@ VkResult vkGetBestComputeQueueNPH(VkPhysicalDevice physicalDevice,
                                   uint32_t* queueFamilyIndex) {
   uint32_t queueFamilyPropertiesCount = 0;
   vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice,
-                                           &queueFamilyPropertiesCount, 0);
+                                           &queueFamilyPropertiesCount, nullptr);
 
-  VkQueueFamilyProperties* const queueFamilyProperties =
+  auto* const queueFamilyProperties =
       (VkQueueFamilyProperties*)alloca(sizeof(VkQueueFamilyProperties) *
                                        queueFamilyPropertiesCount);
 
@@ -156,7 +156,7 @@ int main(int argc, const char* const argv[]) {
   }
 
   const VkApplicationInfo applicationInfo = {VK_STRUCTURE_TYPE_APPLICATION_INFO,
-                                             0,
+                                             nullptr,
                                              "VKComputeSample",
                                              0,
                                              "",
@@ -165,22 +165,22 @@ int main(int argc, const char* const argv[]) {
 
   const VkInstanceCreateInfo instanceCreateInfo = {
       VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-      0,
+      nullptr,
       0,
       &applicationInfo,
       0,
+      nullptr,
       0,
-      0,
-      0};
+      nullptr};
 
-  VkInstance instance;
-  BAIL_ON_BAD_RESULT(vkCreateInstance(&instanceCreateInfo, 0, &instance));
+  VkInstance instance = nullptr;
+  BAIL_ON_BAD_RESULT(vkCreateInstance(&instanceCreateInfo, nullptr, &instance));
 
   uint32_t physicalDeviceCount = 0;
   BAIL_ON_BAD_RESULT(
-      vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, 0));
+      vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, nullptr));
 
-  VkPhysicalDevice* const physicalDevices =
+  auto* const physicalDevices =
       (VkPhysicalDevice*)malloc(sizeof(VkPhysicalDevice) * physicalDeviceCount);
 
   BAIL_ON_BAD_RESULT(vkEnumeratePhysicalDevices(instance, &physicalDeviceCount,
@@ -199,7 +199,7 @@ int main(int argc, const char* const argv[]) {
     const float queuePrioritory = 1.0f;
     const VkDeviceQueueCreateInfo deviceQueueCreateInfo = {
         VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-        0,
+        nullptr,
         0,
         queueFamilyIndex,
         1,
@@ -207,19 +207,19 @@ int main(int argc, const char* const argv[]) {
 
     const VkDeviceCreateInfo deviceCreateInfo = {
         VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-        0,
+        nullptr,
         0,
         1,
         &deviceQueueCreateInfo,
         0,
+        nullptr,
         0,
-        0,
-        0,
-        0};
+        nullptr,
+        nullptr};
 
-    VkDevice device;
+    VkDevice device = nullptr;
     BAIL_ON_BAD_RESULT(
-        vkCreateDevice(physicalDevices[i], &deviceCreateInfo, 0, &device));
+        vkCreateDevice(physicalDevices[i], &deviceCreateInfo, nullptr, &device));
 
     VkPhysicalDeviceMemoryProperties properties;
 
@@ -256,17 +256,17 @@ int main(int argc, const char* const argv[]) {
                            : VK_SUCCESS);
 
     const VkMemoryAllocateInfo memoryAllocateInfo = {
-        VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, 0, bufferSize, memoryTypeIndex};
+        VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, nullptr, bufferSize, memoryTypeIndex};
 
-    VkDeviceMemory memoryIn;
+    VkDeviceMemory memoryIn = nullptr;
     BAIL_ON_BAD_RESULT(
-        vkAllocateMemory(device, &memoryAllocateInfo, 0, &memoryIn));
+        vkAllocateMemory(device, &memoryAllocateInfo, nullptr, &memoryIn));
 
-    VkDeviceMemory memoryOut;
+    VkDeviceMemory memoryOut = nullptr;
     BAIL_ON_BAD_RESULT(
-        vkAllocateMemory(device, &memoryAllocateInfo, 0, &memoryOut));
+        vkAllocateMemory(device, &memoryAllocateInfo, nullptr, &memoryOut));
 
-    BufferDataT* payload;
+    BufferDataT* payload = nullptr;
     BAIL_ON_BAD_RESULT(
         vkMapMemory(device, memoryIn, 0, bufferSize, 0, (void**)&payload));
 
@@ -297,7 +297,7 @@ int main(int argc, const char* const argv[]) {
 
     const VkBufferCreateInfo bufferCreateInfo = {
         VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-        0,
+        nullptr,
         0,
         bufferSize,
         VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
@@ -305,44 +305,44 @@ int main(int argc, const char* const argv[]) {
         1,
         &queueFamilyIndex};
 
-    VkBuffer in_buffer;
+    VkBuffer in_buffer = nullptr;
     BAIL_ON_BAD_RESULT(
-        vkCreateBuffer(device, &bufferCreateInfo, 0, &in_buffer));
+        vkCreateBuffer(device, &bufferCreateInfo, nullptr, &in_buffer));
 
     BAIL_ON_BAD_RESULT(vkBindBufferMemory(device, in_buffer, memoryIn, 0));
 
-    VkBuffer out_buffer;
+    VkBuffer out_buffer = nullptr;
     BAIL_ON_BAD_RESULT(
-        vkCreateBuffer(device, &bufferCreateInfo, 0, &out_buffer));
+        vkCreateBuffer(device, &bufferCreateInfo, nullptr, &out_buffer));
 
     BAIL_ON_BAD_RESULT(vkBindBufferMemory(device, out_buffer, memoryOut, 0));
 
     const auto compCode = readFile("./shaders/simple_shader.comp.spv");
 
     VkShaderModuleCreateInfo shaderModuleCreateInfo = {
-        VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO, 0, 0,
+        VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO, nullptr, 0,
         compCode.size(),                  // sizeof(shader),
         (const uint32_t*)compCode.data()  // shader
     };
 
-    VkShaderModule shader_module;
+    VkShaderModule shader_module = nullptr;
 
-    BAIL_ON_BAD_RESULT(vkCreateShaderModule(device, &shaderModuleCreateInfo, 0,
+    BAIL_ON_BAD_RESULT(vkCreateShaderModule(device, &shaderModuleCreateInfo, nullptr,
                                             &shader_module));
 
     VkDescriptorSetLayoutBinding descriptorSetLayoutBindings[2] = {
         {0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT,
-         0},
+         nullptr},
         {1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_COMPUTE_BIT,
-         0}};
+         nullptr}};
 
     VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = {
-        VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO, 0, 0, 2,
+        VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO, nullptr, 0, 2,
         descriptorSetLayoutBindings};
 
-    VkDescriptorSetLayout descriptorSetLayout;
+    VkDescriptorSetLayout descriptorSetLayout = nullptr;
     BAIL_ON_BAD_RESULT(vkCreateDescriptorSetLayout(
-        device, &descriptorSetLayoutCreateInfo, 0, &descriptorSetLayout));
+        device, &descriptorSetLayoutCreateInfo, nullptr, &descriptorSetLayout));
 
     VkPushConstantRange pushConstantRange{
         .stageFlags = VK_SHADER_STAGE_COMPUTE_BIT,
@@ -360,47 +360,47 @@ int main(int argc, const char* const argv[]) {
         .pPushConstantRanges = &pushConstantRange,
     };
 
-    VkPipelineLayout pipelineLayout;
+    VkPipelineLayout pipelineLayout = nullptr;
     BAIL_ON_BAD_RESULT(vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo,
-                                              0, &pipelineLayout));
+                                              nullptr, &pipelineLayout));
 
     VkComputePipelineCreateInfo computePipelineCreateInfo = {
         VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+        nullptr,
         0,
-        0,
-        {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, 0, 0,
-         VK_SHADER_STAGE_COMPUTE_BIT, shader_module, "main", 0},
+        {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, nullptr, 0,
+         VK_SHADER_STAGE_COMPUTE_BIT, shader_module, "main", nullptr},
         pipelineLayout,
-        0,
+        nullptr,
         0};
 
-    VkPipeline pipeline;
+    VkPipeline pipeline = nullptr;
     BAIL_ON_BAD_RESULT(vkCreateComputePipelines(
-        device, 0, 1, &computePipelineCreateInfo, 0, &pipeline));
+        device, nullptr, 1, &computePipelineCreateInfo, nullptr, &pipeline));
 
     VkCommandPoolCreateInfo commandPoolCreateInfo = {
-        VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO, 0, 0, queueFamilyIndex};
+        VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO, nullptr, 0, queueFamilyIndex};
 
     VkDescriptorPoolSize descriptorPoolSize = {
         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2};
 
     VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = {
         VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-        0,
+        nullptr,
         0,
         1,
         1,
         &descriptorPoolSize};
 
-    VkDescriptorPool descriptorPool;
+    VkDescriptorPool descriptorPool = nullptr;
     BAIL_ON_BAD_RESULT(vkCreateDescriptorPool(device, &descriptorPoolCreateInfo,
-                                              0, &descriptorPool));
+                                              nullptr, &descriptorPool));
 
     VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {
-        VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO, 0, descriptorPool, 1,
+        VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO, nullptr, descriptorPool, 1,
         &descriptorSetLayout};
 
-    VkDescriptorSet descriptorSet;
+    VkDescriptorSet descriptorSet = nullptr;
     BAIL_ON_BAD_RESULT(vkAllocateDescriptorSets(
         device, &descriptorSetAllocateInfo, &descriptorSet));
 
@@ -411,28 +411,28 @@ int main(int argc, const char* const argv[]) {
                                                        VK_WHOLE_SIZE};
 
     VkWriteDescriptorSet writeDescriptorSet[2] = {
-        {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET, 0, descriptorSet, 0, 0, 1,
-         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 0, &in_descriptorBufferInfo, 0},
-        {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET, 0, descriptorSet, 1, 0, 1,
-         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 0, &out_descriptorBufferInfo, 0}};
+        {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET, nullptr, descriptorSet, 0, 0, 1,
+         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, nullptr, &in_descriptorBufferInfo, nullptr},
+        {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET, nullptr, descriptorSet, 1, 0, 1,
+         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, nullptr, &out_descriptorBufferInfo, nullptr}};
 
-    vkUpdateDescriptorSets(device, 2, writeDescriptorSet, 0, 0);
+    vkUpdateDescriptorSets(device, 2, writeDescriptorSet, 0, nullptr);
 
-    VkCommandPool commandPool;
+    VkCommandPool commandPool = nullptr;
     BAIL_ON_BAD_RESULT(
-        vkCreateCommandPool(device, &commandPoolCreateInfo, 0, &commandPool));
+        vkCreateCommandPool(device, &commandPoolCreateInfo, nullptr, &commandPool));
 
     VkCommandBufferAllocateInfo commandBufferAllocateInfo = {
-        VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, 0, commandPool,
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO, nullptr, commandPool,
         VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1};
 
-    VkCommandBuffer commandBuffer;
+    VkCommandBuffer commandBuffer = nullptr;
     BAIL_ON_BAD_RESULT(vkAllocateCommandBuffers(
         device, &commandBufferAllocateInfo, &commandBuffer));
 
     VkCommandBufferBeginInfo commandBufferBeginInfo = {
-        VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, 0,
-        VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, 0};
+        VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr,
+        VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, nullptr};
 
     BAIL_ON_BAD_RESULT(
         vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo));
@@ -440,7 +440,7 @@ int main(int argc, const char* const argv[]) {
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
 
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
-                            pipelineLayout, 0, 1, &descriptorSet, 0, 0);
+                            pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 
     // Push constants
     ImageConstantData push{.width = static_cast<uint32_t>(width),
@@ -454,21 +454,21 @@ int main(int argc, const char* const argv[]) {
 
     BAIL_ON_BAD_RESULT(vkEndCommandBuffer(commandBuffer));
 
-    VkQueue queue;
+    VkQueue queue = nullptr;
     vkGetDeviceQueue(device, queueFamilyIndex, 0, &queue);
 
     VkSubmitInfo submitInfo = {
-        VK_STRUCTURE_TYPE_SUBMIT_INFO, 0, 0, 0, 0, 1, &commandBuffer, 0, 0};
+        VK_STRUCTURE_TYPE_SUBMIT_INFO, nullptr, 0, nullptr, nullptr, 1, &commandBuffer, 0, nullptr};
 
-    BAIL_ON_BAD_RESULT(vkQueueSubmit(queue, 1, &submitInfo, 0));
+    BAIL_ON_BAD_RESULT(vkQueueSubmit(queue, 1, &submitInfo, nullptr));
 
     BAIL_ON_BAD_RESULT(vkQueueWaitIdle(queue));
 
-    BufferDataT* payloadIn;
+    BufferDataT* payloadIn = nullptr;
     BAIL_ON_BAD_RESULT(
         vkMapMemory(device, memoryIn, 0, bufferSize, 0, (void**)&payloadIn));
 
-    BufferDataT* payloadOut;
+    BufferDataT* payloadOut = nullptr;
     BAIL_ON_BAD_RESULT(
         vkMapMemory(device, memoryOut, 0, bufferSize, 0, (void**)&payloadOut));
 
