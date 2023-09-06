@@ -75,7 +75,7 @@ struct QueueFamilyIndices {
 };
 
 struct SwapChainSupportDetails {
-  VkSurfaceCapabilitiesKHR capabilities;
+  VkSurfaceCapabilitiesKHR capabilities{};
   std::vector<VkSurfaceFormatKHR> formats;
   std::vector<VkPresentModeKHR> presentModes;
 };
@@ -131,43 +131,43 @@ class HelloTriangleApplication {
   int texWidth{};
   int texHeight{};
 
-  GLFWwindow* window;
+  GLFWwindow* window{};
 
-  VkInstance instance;
-  VkDebugUtilsMessengerEXT debugMessenger;
-  VkSurfaceKHR surface;
+  VkInstance instance{};
+  VkDebugUtilsMessengerEXT debugMessenger{};
+  VkSurfaceKHR surface{};
 
   VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-  VkDevice device;
+  VkDevice device{};
 
-  VkQueue graphicsQueue;
-  VkQueue presentQueue;
+  VkQueue graphicsQueue{};
+  VkQueue presentQueue{};
 
-  VkSwapchainKHR swapChain;
+  VkSwapchainKHR swapChain{};
   std::vector<VkImage> swapChainImages;
   VkFormat swapChainImageFormat;
-  VkExtent2D swapChainExtent;
+  VkExtent2D swapChainExtent{};
   std::vector<VkImageView> swapChainImageViews;
   std::vector<VkFramebuffer> swapChainFramebuffers;
 
-  VkRenderPass renderPass;
-  VkDescriptorSetLayout descriptorSetLayout;
-  VkPipelineLayout pipelineLayout;
-  VkPipeline graphicsPipeline;
+  VkRenderPass renderPass{};
+  VkDescriptorSetLayout descriptorSetLayout{};
+  VkPipelineLayout pipelineLayout{};
+  VkPipeline graphicsPipeline{};
 
-  VkCommandPool commandPool;
+  VkCommandPool commandPool{};
 
-  VkImage textureImage;
-  VkDeviceMemory textureImageMemory;
-  VkImageView textureImageView;
-  VkSampler textureSampler;
+  VkImage textureImage{};
+  VkDeviceMemory textureImageMemory{};
+  VkImageView textureImageView{};
+  VkSampler textureSampler{};
 
-  VkBuffer vertexBuffer;
-  VkDeviceMemory vertexBufferMemory;
-  VkBuffer indexBuffer;
-  VkDeviceMemory indexBufferMemory;
+  VkBuffer vertexBuffer{};
+  VkDeviceMemory vertexBufferMemory{};
+  VkBuffer indexBuffer{};
+  VkDeviceMemory indexBufferMemory{};
 
-  VkDescriptorPool descriptorPool;
+  VkDescriptorPool descriptorPool{};
   std::vector<VkDescriptorSet> descriptorSets;
 
   std::vector<VkCommandBuffer> commandBuffers;
@@ -190,8 +190,8 @@ class HelloTriangleApplication {
     glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
   }
 
-  static void framebufferResizeCallback(GLFWwindow* window, int width,
-                                        int height) {
+  static void framebufferResizeCallback(GLFWwindow* window, int  /*width*/,
+                                        int  /*height*/) {
     auto app = reinterpret_cast<HelloTriangleApplication*>(
         glfwGetWindowUserPointer(window));
     app->framebufferResized = true;
@@ -788,14 +788,14 @@ class HelloTriangleApplication {
       }
     }
 
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
+    VkBuffer stagingBuffer = nullptr;
+    VkDeviceMemory stagingBufferMemory = nullptr;
     createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  stagingBuffer, stagingBufferMemory);
 
-    void* data;
+    void* data = nullptr;
     vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data);
     memcpy(data, pixels.data(), static_cast<size_t>(imageSize));
     vkUnmapMemory(device, stagingBufferMemory);
@@ -860,7 +860,7 @@ class HelloTriangleApplication {
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
 
-    VkImageView imageView;
+    VkImageView imageView = nullptr;
     if (vkCreateImageView(device, &viewInfo, nullptr, &imageView) !=
         VK_SUCCESS) {
       throw std::runtime_error("failed to create texture image view!");
@@ -909,7 +909,7 @@ class HelloTriangleApplication {
     vkBindImageMemory(device, image, imageMemory, 0);
   }
 
-  void transitionImageLayout(VkImage image, VkFormat format,
+  void transitionImageLayout(VkImage image, VkFormat  /*format*/,
                              VkImageLayout oldLayout, VkImageLayout newLayout) {
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
@@ -926,8 +926,8 @@ class HelloTriangleApplication {
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount = 1;
 
-    VkPipelineStageFlags sourceStage;
-    VkPipelineStageFlags destinationStage;
+    VkPipelineStageFlags sourceStage = 0;
+    VkPipelineStageFlags destinationStage = 0;
 
     if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED &&
         newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
@@ -977,14 +977,14 @@ class HelloTriangleApplication {
   void createVertexBuffer() {
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
+    VkBuffer stagingBuffer = nullptr;
+    VkDeviceMemory stagingBufferMemory = nullptr;
     createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  stagingBuffer, stagingBufferMemory);
 
-    void* data;
+    void* data = nullptr;
     vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
     memcpy(data, vertices.data(), (size_t)bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);
@@ -1003,14 +1003,14 @@ class HelloTriangleApplication {
   void createIndexBuffer() {
     VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
+    VkBuffer stagingBuffer = nullptr;
+    VkDeviceMemory stagingBufferMemory = nullptr;
     createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  stagingBuffer, stagingBufferMemory);
 
-    void* data;
+    void* data = nullptr;
     vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
     memcpy(data, indices.data(), (size_t)bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);
@@ -1120,7 +1120,7 @@ class HelloTriangleApplication {
     allocInfo.commandPool = commandPool;
     allocInfo.commandBufferCount = 1;
 
-    VkCommandBuffer commandBuffer;
+    VkCommandBuffer commandBuffer = nullptr;
     vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
 
     VkCommandBufferBeginInfo beginInfo{};
@@ -1270,7 +1270,7 @@ class HelloTriangleApplication {
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE,
                     UINT64_MAX);
 
-    uint32_t imageIndex;
+    uint32_t imageIndex = 0;
     VkResult result = vkAcquireNextImageKHR(
         device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame],
         VK_NULL_HANDLE, &imageIndex);
@@ -1343,7 +1343,7 @@ class HelloTriangleApplication {
     createInfo.codeSize = code.size();
     createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-    VkShaderModule shaderModule;
+    VkShaderModule shaderModule = nullptr;
     if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) !=
         VK_SUCCESS) {
       throw std::runtime_error("failed to create shader module!");
@@ -1379,7 +1379,7 @@ class HelloTriangleApplication {
     if (capabilities.currentExtent.width != UINT32_MAX) {
       return capabilities.currentExtent;
     } else {
-      int width, height;
+      int width = 0, height = 0;
       glfwGetFramebufferSize(window, &width, &height);
 
       VkExtent2D actualExtent = {static_cast<uint32_t>(width),
@@ -1402,7 +1402,7 @@ class HelloTriangleApplication {
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface,
                                               &details.capabilities);
 
-    uint32_t formatCount;
+    uint32_t formatCount = 0;
     vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount,
                                          nullptr);
 
@@ -1412,7 +1412,7 @@ class HelloTriangleApplication {
                                            details.formats.data());
     }
 
-    uint32_t presentModeCount;
+    uint32_t presentModeCount = 0;
     vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface,
                                               &presentModeCount, nullptr);
 
@@ -1445,7 +1445,7 @@ class HelloTriangleApplication {
   }
 
   bool checkDeviceExtensionSupport(VkPhysicalDevice device) {
-    uint32_t extensionCount;
+    uint32_t extensionCount = 0;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount,
                                          nullptr);
 
@@ -1499,7 +1499,7 @@ class HelloTriangleApplication {
 
   std::vector<const char*> getRequiredExtensions() {
     uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions;
+    const char** glfwExtensions = nullptr;
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
     std::vector<const char*> extensions(glfwExtensions,
@@ -1513,7 +1513,7 @@ class HelloTriangleApplication {
   }
 
   bool checkValidationLayerSupport() {
-    uint32_t layerCount;
+    uint32_t layerCount = 0;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
     std::vector<VkLayerProperties> availableLayers(layerCount);
@@ -1556,10 +1556,10 @@ class HelloTriangleApplication {
   }
 
   static VKAPI_ATTR VkBool32 VKAPI_CALL
-  debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                VkDebugUtilsMessageTypeFlagsEXT messageType,
+  debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT  /*messageSeverity*/,
+                VkDebugUtilsMessageTypeFlagsEXT  /*messageType*/,
                 const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                void* pUserData) {
+                void*  /*pUserData*/) {
     std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 
     return VK_FALSE;
