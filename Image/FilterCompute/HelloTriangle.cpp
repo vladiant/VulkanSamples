@@ -25,10 +25,8 @@ using std::string;
 using std::to_string;
 
 #include <exception>
-using std::exception;
 
 #include <stdexcept>
-using std::runtime_error;
 
 #include <cstring>
 #include <fstream>
@@ -249,7 +247,7 @@ void present(VkQueue queue, VkSwapchainKHR swapchain,
 
 std::vector<const char*> getRequiredExtensions() {
   uint32_t glfwExtensionCount = 0;
-  const char** glfwExtensions;
+  const char** glfwExtensions = nullptr;
   glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
   std::vector<const char*> extensions(glfwExtensions,
@@ -310,7 +308,7 @@ int main() try {
   GLFWwindow* window = glfwCreateWindow(::windowWidth, ::windowHeight, "Vulkan",
                                         nullptr, nullptr);
 
-  VkSurfaceKHR surface;
+  VkSurfaceKHR surface = nullptr;
   if (glfwCreateWindowSurface(instance, window, nullptr, &surface) !=
       VK_SUCCESS) {
     throw std::runtime_error("failed to create window surface!");
@@ -328,7 +326,7 @@ int main() try {
   vector<VkImage> swapchainImages = getSwapchainImages(device, swapchain);
   vector<VkImageView> swapchainImageViews =
       initSwapchainImageViews(device, swapchainImages, surfaceFormat.format);
-  const uint32_t imageCount = static_cast<uint32_t>(swapchainImages.size());
+  const auto imageCount = static_cast<uint32_t>(swapchainImages.size());
 
   VkRenderPass renderPass = initRenderPass(device, surfaceFormat);
 
@@ -582,7 +580,7 @@ VkInstance initInstance(const vector<const char*> layers,
                            // execution
   }
 
-  VkInstance instance;
+  VkInstance instance = nullptr;
   VkResult errorCode = vkCreateInstance(&instanceInfo, nullptr, &instance);
   RESULT_HANDLER(errorCode, "vkCreateInstance");
 
@@ -644,7 +642,7 @@ vector<VkQueueFamilyProperties> getQueueFamilyProperties(
     VkPhysicalDevice device) {
   vector<VkQueueFamilyProperties> queueFamilies;
 
-  uint32_t queueFamiliesCount;
+  uint32_t queueFamiliesCount = 0;
   vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamiliesCount,
                                            nullptr);
 
@@ -714,7 +712,7 @@ VkDevice initDevice(VkPhysicalDevice physDevice,
                                 extensions.data(),
                                 &features};
 
-  VkDevice device;
+  VkDevice device = nullptr;
   VkResult errorCode =
       vkCreateDevice(physDevice, &deviceInfo, nullptr, &device);
   RESULT_HANDLER(errorCode, "vkCreateDevice");
@@ -725,7 +723,7 @@ VkDevice initDevice(VkPhysicalDevice physDevice,
 void killDevice(VkDevice device) { vkDestroyDevice(device, nullptr); }
 
 VkQueue getQueue(VkDevice device, uint32_t queueFamily, uint32_t queueIndex) {
-  VkQueue queue;
+  VkQueue queue = nullptr;
   vkGetDeviceQueue(device, queueFamily, queueIndex, &queue);
 
   return queue;
@@ -808,7 +806,7 @@ VkDeviceMemory initMemory(
                                   nullptr,  // pNext
                                   memoryRequirements.size, memoryType};
 
-  VkDeviceMemory memory;
+  VkDeviceMemory memory = nullptr;
   VkResult errorCode = vkAllocateMemory(device, &memoryInfo, nullptr, &memory);
   RESULT_HANDLER(errorCode, "vkAllocateMemory");
 
@@ -819,7 +817,7 @@ VkDeviceMemory initMemory(
 
 void setMemoryData(VkDevice device, VkDeviceMemory memory, void* begin,
                    size_t size) {
-  void* data;
+  void* data = nullptr;
   VkResult errorCode = vkMapMemory(device, memory, 0 /*offset*/, VK_WHOLE_SIZE,
                                    0 /*flags - reserved*/, &data);
   RESULT_HANDLER(errorCode, "vkMapMemory");
@@ -844,7 +842,7 @@ VkBuffer initBuffer(VkDevice device, VkDeviceSize size,
       nullptr  // queue families -- ignored for EXCLUSIVE
   };
 
-  VkBuffer buffer;
+  VkBuffer buffer = nullptr;
   VkResult errorCode = vkCreateBuffer(device, &bufferInfo, nullptr, &buffer);
   RESULT_HANDLER(errorCode, "vkCreateBuffer");
   return buffer;
@@ -879,7 +877,7 @@ VkImage initImage(VkDevice device, VkFormat format, uint32_t width,
       nullptr,  // pQueueFamilyIndices -- ignored for EXCLUSIVE
       VK_IMAGE_LAYOUT_UNDEFINED};
 
-  VkImage image;
+  VkImage image = nullptr;
   VkResult errorCode = vkCreateImage(device, &ici, nullptr, &image);
   RESULT_HANDLER(errorCode, "vkCreateImage");
 
@@ -906,7 +904,7 @@ VkImageView initImageView(VkDevice device, VkImage image, VkFormat format) {
        /* base array layer */ 0,
        /* array layer count */ VK_REMAINING_ARRAY_LAYERS}};
 
-  VkImageView imageView;
+  VkImageView imageView = nullptr;
   VkResult errorCode = vkCreateImageView(device, &iciv, nullptr, &imageView);
   RESULT_HANDLER(errorCode, "vkCreateImageView");
 
@@ -1039,7 +1037,7 @@ VkSwapchainKHR initSwapchain(VkPhysicalDevice physicalDevice, VkDevice device,
       VK_TRUE,  // clipped
       VK_NULL_HANDLE};
 
-  VkSwapchainKHR swapchain;
+  VkSwapchainKHR swapchain = nullptr;
   VkResult errorCode =
       vkCreateSwapchainKHR(device, &swapchainInfo, nullptr, &swapchain);
   RESULT_HANDLER(errorCode, "vkCreateSwapchainKHR");
@@ -1073,7 +1071,7 @@ vector<VkImage> getSwapchainImages(VkDevice device, VkSwapchainKHR swapchain) {
 
 uint32_t getNextImageIndex(VkDevice device, VkSwapchainKHR swapchain,
                            VkSemaphore imageReadyS) {
-  uint32_t nextImageIndex;
+  uint32_t nextImageIndex = 0;
   VkResult errorCode =
       vkAcquireNextImageKHR(device, swapchain, UINT64_MAX /* no timeout */,
                             imageReadyS, VK_NULL_HANDLE, &nextImageIndex);
@@ -1168,7 +1166,7 @@ VkRenderPass initRenderPass(VkDevice device, VkSurfaceFormatKHR surfaceFormat) {
       dependencies.data()                          // dependencies
   };
 
-  VkRenderPass renderPass;
+  VkRenderPass renderPass = nullptr;
   VkResult errorCode =
       vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass);
   RESULT_HANDLER(errorCode, "vkCreateRenderPass");
@@ -1198,7 +1196,7 @@ vector<VkFramebuffer> initFramebuffers(VkDevice device, VkRenderPass renderPass,
         1        // layers
     };
 
-    VkFramebuffer framebuffer;
+    VkFramebuffer framebuffer = nullptr;
     VkResult errorCode =
         vkCreateFramebuffer(device, &framebufferInfo, nullptr, &framebuffer);
     RESULT_HANDLER(errorCode, "vkCreateFramebuffer");
@@ -1223,7 +1221,7 @@ VkDescriptorSetLayout initDescriptorSetLayout(
       0,        // flags -- reserved for future use
       static_cast<uint32_t>(bindings.size()), bindings.data()};
 
-  VkDescriptorSetLayout descriptorSetLayout;
+  VkDescriptorSetLayout descriptorSetLayout = nullptr;
   VkResult errorCode = vkCreateDescriptorSetLayout(
       device, &descriptorSetLayoutInfo, nullptr, &descriptorSetLayout);
   RESULT_HANDLER(errorCode, "vkCreateDescriptorSetLayout");
@@ -1246,7 +1244,7 @@ VkDescriptorPool initDescriptorPool(VkDevice device, uint32_t maxSets,
       1,
       &poolSize};
 
-  VkDescriptorPool descriptorPool;
+  VkDescriptorPool descriptorPool = nullptr;
   VkResult errorCode = vkCreateDescriptorPool(device, &descriptorPoolInfo,
                                               nullptr, &descriptorPool);
   RESULT_HANDLER(errorCode, "vkCreateDescriptorPool");
@@ -1330,7 +1328,7 @@ VkShaderModule initShaderModule(VkDevice device, string filename) {
       0,        // flags - reserved for future use
       shaderCode.size(), reinterpret_cast<const uint32_t*>(shaderCode.data())};
 
-  VkShaderModule shaderModule;
+  VkShaderModule shaderModule = nullptr;
   VkResult errorCode =
       vkCreateShaderModule(device, &shaderModuleInfo, nullptr, &shaderModule);
   RESULT_HANDLER(errorCode, "vkCreateShaderModule");
@@ -1355,7 +1353,7 @@ VkPipelineLayout initPipelineLayout(
       nullptr  // push constant ranges
   };
 
-  VkPipelineLayout pipelineLayout;
+  VkPipelineLayout pipelineLayout = nullptr;
   VkResult errorCode = vkCreatePipelineLayout(device, &pipelineLayoutInfo,
                                               nullptr, &pipelineLayout);
   RESULT_HANDLER(errorCode, "vkCreatePipelineLayout");
@@ -1552,7 +1550,7 @@ VkPipeline initPipeline(VkDevice device, VkPhysicalDeviceLimits limits,
       -1               // base pipeline index
   };
 
-  VkPipeline pipeline;
+  VkPipeline pipeline = nullptr;
   VkResult errorCode = vkCreateGraphicsPipelines(
       device, VK_NULL_HANDLE /* pipeline cache */, 1 /* info count */,
       &pipelineInfo, nullptr, &pipeline);
@@ -1583,7 +1581,7 @@ VkPipeline initComputePipeline(VkDevice device, VkPipelineLayout pipelineLayout,
       -1               // base pipeline index
   };
 
-  VkPipeline pipeline;
+  VkPipeline pipeline = nullptr;
   VkResult errorCode = vkCreateComputePipelines(
       device, VK_NULL_HANDLE /* pipeline cache */, 1 /* info count */,
       &pipelineInfo, nullptr, &pipeline);
@@ -1610,7 +1608,7 @@ VkSemaphore initSemaphore(VkDevice device) {
       0,        // flags - reserved for future use
   };
 
-  VkSemaphore semaphore;
+  VkSemaphore semaphore = nullptr;
   VkResult errorCode =
       vkCreateSemaphore(device, &semaphoreInfo, nullptr, &semaphore);
   RESULT_HANDLER(errorCode, "vkCreateSemaphore");
@@ -1628,7 +1626,7 @@ VkCommandPool initCommandPool(VkDevice device, const uint32_t queueFamily) {
       0,        // flags
       queueFamily};
 
-  VkCommandPool commandPool;
+  VkCommandPool commandPool = nullptr;
   VkResult errorCode =
       vkCreateCommandPool(device, &commandPoolInfo, nullptr, &commandPool);
   RESULT_HANDLER(errorCode, "vkCreateCommandPool");
