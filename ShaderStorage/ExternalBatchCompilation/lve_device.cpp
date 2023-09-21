@@ -10,10 +10,10 @@ namespace lve {
 
 // local callback functions
 static VKAPI_ATTR VkBool32 VKAPI_CALL
-debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-              VkDebugUtilsMessageTypeFlagsEXT messageType,
+debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT  /*messageSeverity*/,
+              VkDebugUtilsMessageTypeFlagsEXT  /*messageType*/,
               const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-              void *pUserData) {
+              void * /*pUserData*/) {
   std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 
   return VK_FALSE;
@@ -243,7 +243,7 @@ void LveDevice::setupDebugMessenger() {
 }
 
 bool LveDevice::checkValidationLayerSupport() {
-  uint32_t layerCount;
+  uint32_t layerCount = 0;
   vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
   std::vector<VkLayerProperties> availableLayers(layerCount);
@@ -269,7 +269,7 @@ bool LveDevice::checkValidationLayerSupport() {
 
 std::vector<const char *> LveDevice::getRequiredExtensions() {
   uint32_t glfwExtensionCount = 0;
-  const char **glfwExtensions;
+  const char **glfwExtensions = nullptr;
   glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
   std::vector<const char *> extensions(glfwExtensions,
@@ -307,7 +307,7 @@ void LveDevice::hasGflwRequiredInstanceExtensions() {
 }
 
 bool LveDevice::checkDeviceExtensionSupport(VkPhysicalDevice device) {
-  uint32_t extensionCount;
+  uint32_t extensionCount = 0;
   vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount,
                                        nullptr);
 
@@ -364,7 +364,7 @@ SwapChainSupportDetails LveDevice::querySwapChainSupport(
   vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface_,
                                             &details.capabilities);
 
-  uint32_t formatCount;
+  uint32_t formatCount = 0;
   vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface_, &formatCount, nullptr);
 
   if (formatCount != 0) {
@@ -373,7 +373,7 @@ SwapChainSupportDetails LveDevice::querySwapChainSupport(
                                          details.formats.data());
   }
 
-  uint32_t presentModeCount;
+  uint32_t presentModeCount = 0;
   vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface_, &presentModeCount,
                                             nullptr);
 
@@ -454,7 +454,7 @@ VkCommandBuffer LveDevice::beginSingleTimeCommands() {
   allocInfo.commandPool = commandPool;
   allocInfo.commandBufferCount = 1;
 
-  VkCommandBuffer commandBuffer;
+  VkCommandBuffer commandBuffer = nullptr;
   vkAllocateCommandBuffers(device_, &allocInfo, &commandBuffer);
 
   VkCommandBufferBeginInfo beginInfo{};

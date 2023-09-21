@@ -99,7 +99,7 @@ void FirstApp::createCommandBuffers() {
 }
 
 void FirstApp::drawFrame() {
-  uint32_t imageIndex;
+  uint32_t imageIndex = 0;
   auto result = lveSwapChain.acquireNextImage(&imageIndex);
 
   if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
